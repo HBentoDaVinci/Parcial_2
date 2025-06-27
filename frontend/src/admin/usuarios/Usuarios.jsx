@@ -84,6 +84,7 @@ function Usuarios(){
             }, 1000);
             setUsuarios([...usuarios, data]);
             setUsuario({nombre: "", email: "", password:""})
+            setValidated(false);
         } catch(error){
             console.error(error);
             alert("Ocurrio un problema en el servidor")
