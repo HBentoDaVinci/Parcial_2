@@ -6,54 +6,15 @@
       "min": 18,
       "max": 35
     },
-    "cobertura": [
-      "Emergencias las 24 horas.",
-      "Consultas médicas y odontología general.",
-      "Internación en habitación individual."
-    ],
+    "cobertura": "Emergencias las 24 horas. Consultas médicas y odontología general.",
     "grupoFamiliar": [
       "individual"
     ],
-    "prepaga": "Medicus",
+    "prepaga": {
+      "_id": "685b62a5eb100ae6a31c798b",
+      "nombre": "Swiss Medical",
+      "rnemp": 113328
+    },
     "tarifa": 100000
-  },
-  {
-    "id": "58g950ac-2416-5ct0-ab05-935ecb748t5l",
-    "nombre": "Plan +30",
-    "rangoEtario": {
-      "min": 30,
-      "max": 45
-    },
-    "cobertura": [
-      "Reintegro 40% en medicamentos",
-      "Médico a domicilio sin cargo",
-      "Más sanatorios y profesionales contratados"
-    ],
-    "grupoFamiliar": [
-      "individual",
-      "matrimonio"
-    ],
-    "prepaga": "Osde",
-    "tarifa": 180000
-  },
-  {
-    "id": "42g950ac-2416-5ct0-ab05-935ecb748y84",
-    "nombre": "Plan +40",
-    "rangoEtario": {
-      "min": 40,
-      "max": 60
-    },
-    "cobertura": [
-      "Incluye la cobertura del Plan +30",
-      "Ortodoncia sin límites de edad",
-      "Reintegro 70% en medicamentos."
-    ],
-    "grupoFamiliar": [
-      "individual",
-      "matrimonio",
-      "familiar"
-    ],
-    "prepaga": "Sancor Salud",
-    "tarifa": 120000
   }
 ]
