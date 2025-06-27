@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>PrePaga Salud</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-4Q6Gf2aSP4eDXB8Miphtr37CMZZQ5oXLH2yaXMJ2w8e2ZtHTl7GptT4jmndRuHDT" crossorigin="anonymous">
+    <link href="./css/styles.css" rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <header class="d-flex flex-wrap justify-content-center py-3 mb-4 border-bottom">
+        <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto link-body-emphasis text-decoration-none">
+          <img src="./img/logo.png" class="brand me-2" width="40" height="40"/>
+          <span>PrePaga Salud</span>
+        </a> 
+        <ul class="nav nav-pills"> 
+          <li class="nav-item"><a href="#" class="nav-link active" aria-current="page">Home</a></li> 
+          <li class="nav-item"><a href="#" class="nav-link">Features</a></li> 
+        </ul> 
+      </header> 
+    </div>
+
+    <div class="container my-5">
+      <div class="p-4 text-center bg-body-tertiary rounded-3">
+        <div class="d-flex mx-auto justify-content-center align-items-center mb-3">
+          <img src="./img/logo-96x96.png" width="96" height="96" alt="PrePaga Salud" class="me-2">
+          <h1 class="text-body-emphasis fw-light">PrePaga Salud</h1>
+        </div>
+        <p class="col-lg-8 mx-auto fs-5 text-muted">
+          Bienvenido a la api de PrePaga Salud.
+        </p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="mb-5">
+        <h2>Sobre PrePaga Salud Api</h2>
+        <p>PrePaga Salud es una API que ofrece información actualizada sobre planes de salud, cartillas médicas y centros médicos. Permite acceder fácilmente a datos útiles para comparar opciones y conocer la cobertura de diferentes prepagas en un solo lugar. Es ideal para integrarse en plataformas web o móviles que necesiten mostrar datos del sistema de medicina prepaga.</p>
+      </div>
+      <div class="mb-5">
+        <h2>Endpoints</h2>
+        <div class="mb-5">
+          <h3>Obtener listado de planes</h3>
+          <p class="h6"><span class="badge text-bg-secondary">GET</span> <a href="/api/planes" target="_blank">/api/planes</a></p>
+          <p><span class="fw-semibold">Descripción:</span> Devuelve una lista de todos los planes de salud disponibles.</p>
+          <p><span class="fw-semibold">Respuesta:</span></p>
+          <pre>
+            <code>"data":[
+              {
+                "_id": "663f5b2c1a4d4d5b6f12e891",
+                "nombre": "Plan Joven",
+                "rangoEtario": {
+                  "min": 18,
+                  "max": 35
+                },
+                "cobertura": [
+                  "Emergencias las 24 horas.",
+                  "Consultas médicas y odontología general.",
+                  "Internación en habitación individual."
+                ],
+                "grupoFamiliar": [
+                  "individual",
+                  "matrimonio",
+                  "familiar"
+                ],
+                "prepaga": "Sancor Salud"
+              },
+            ]</code>
+          </pre>
+        </div>
+        <div class="mb-5">
+          <h3>Obtener listado de planes filtrados por query</h3>
+          <p class="h6"><span class="badge text-bg-secondary">GET</span> <a href="/api/planes?prepaga=Osde&edad=30" target="_blank">/api/planes/prepaga=Osde&edad=30</a></p>
+          <p><span class="fw-semibold">Descripción:</span> Devuelve una lista de todos los planes disponibles para la prepaga solicitada.</p>
+          <p><span class="fw-semibold">Parámetros:</span></p>
+          <div>
+            <table class="table">
+              <thead>
+                <tr>
+                  <th scope="col">Parámetro</th>
+                  <th scope="col">Tipo</th>
+                  <th scope="col">Descripción</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td scope="row">nombre</td>
+                  <td>String</td>
+                  <td>Palabra clave para filtrar por nombre del plan</td>
+                </tr>
+                <tr>
+                  <td scope="row">prepaga</td>
+                  <td>String</td>
+                  <td>Nombre de la prepaga</td>
+                </tr>
+                <tr>
+                  <td scope="row">edad</td>
+                  <td>Int</td>
+                  <td>Edad del usuario</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <p><span class="fw-semibold">Respuesta:</span></p>
+          <pre>
+            <code>"data": [
+              {
+                "_id": "663f5b2c1a4d4d5b6f12e891",
+                "nombre": "Plan Joven",
+                "rangoEtario": {
+                  "min": 18,
+                  "max": 35
+                },
+                "cobertura": [
+                  "Emergencias las 24 horas.",
+                  "Consultas médicas y odontología general.",
+                  "Internación en habitación individual."
+                ],
+                "grupoFamiliar": [
+                  "individual",
+                  "matrimonio",
+                  "familiar"
+                ],
+                "prepaga": "Sancor Salud"
+              },
+            ]</code>
+          </pre>
+          
+        </div>
+        <div class="mb-5">
+          <h3>Obtener listado de prepagas</h3>
+          <p class="h6"><span class="badge text-bg-secondary">GET</span> <a href="/api/prepagas" target="_blank">/api/prepagas</a></p>
+          <p><span class="fw-semibold">Descripción:</span> Devuelve una lista de todas las prepagas disponibles.</p>
+          <p><span class="fw-semibold">Respuesta:</span></p>
+          <pre>
+            <code>"data": [
+              {
+                  "_id": "68437635a0ac9748aaab30ab",
+                  "nombre": "Asoc Mutual SANCOR",
+                  "rnemp": 311371,
+              },
+            ]</code>
+          </pre>
+        </div>
+      </div>
+      <div class="mb-5">
+          <h3>Obtener listado de usuarios</h3>
+          <p class="h6"><span class="badge text-bg-secondary">GET</span> <a href="/api/usuarios" target="_blank">/api/usuarios</a></p>
+          <p><span class="fw-semibold">Descripción:</span> Devuelve una lista de todas los usuarios.</p>
+          <p><span class="fw-semibold">Respuesta:</span></p>
+          <pre>
+            <code>"data": [
+              {
+                  "_id": "685375c5af9341146a7a4f12",
+                  "nombre": "Jose Perez",
+                  "email": "joseperez@gmail.com",
+                  "password": "$2b$10$BLkPs4jQDL3KXN88od8DyexkzIQRImAztzthiO/JOLXEBfFW5leqm",
+              },
+            ]</code>
+          </pre>
+        </div>
+      </div>
+      
+
+      <!-- TODO: Ver esto -->
+      <div class="mb-5 d-none">
+          <h3>2. Obtener cartilla médica</h3>
+          <p><strong>GET</strong> <code>/cartilla</code></p>
+          <p><strong>Parámetros:</strong></p>
+          <ul>
+            <li><code>plan_id</code>: (string, requerido)</li>
+          </ul>
+          <p><strong>Respuesta:</strong></p>
+          <pre><code>[
+          {
+            "especialidad": "Cardiología",
+            "profesional": "Dra. Laura Gómez",
+            "centro": "Clínica del Sur"
+          }
+        ]</code></pre>
+
+          <h3>3. Buscar centros médicos</h3>
+          <p><strong>GET</strong> <code>/centros</code></p>
+          <p><strong>Parámetros opcionales:</strong></p>
+          <ul>
+            <li><code>localidad</code>: (string)</li>
+            <li><code>especialidad</code>: (string)</li>
+          </ul>
+          <p><strong>Respuesta:</strong></p>
+          <pre><code>[
+          {
+            "nombre": "Clínica del Sur",
+            "dirección": "Av. Siempreviva 123",
+            "localidad": "Buenos Aires"
+          }
+        ]</code></pre>
+
+          <h2>🛠️ Códigos de respuesta</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Significado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>200</td>
+                <td>OK</td>
+              </tr>
+              <tr>
+                <td>400</td>
+                <td>Solicitud inválida</td>
+              </tr>
+              <tr>
+                <td>401</td>
+                <td>No autorizado</td>
+              </tr>
+              <tr>
+                <td>404</td>
+                <td>No encontrado</td>
+              </tr>
+              <tr>
+                <td>500</td>
+                <td>Error del servidor</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <h2>📞 Soporte</h2>
+          <p>Para dudas o reportes, contactanos en <strong>soporte@prepagasalud.com</strong>.</p>
+
+        
+      </div>
+    </div>
+
+
+    <div class="container">
+      <footer class="py-5">
+        <div class="row">
+          <div class="col-6 col-md-2 mb-3">
+            <h5>Section</h5>
+            <ul class="nav flex-column">
+              <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
+            </ul>
+          </div>
+          <div class="col-6 col-md-2 mb-3">
+            <h5>Section</h5>
+            <ul class="nav flex-column">
+              <li class="nav-item mb-2"><a href="#" class="nav-link p-0 text-body-secondary">Home</a></li>
+            </ul>
+          </div>
+          <div class="col-md-5 offset-md-1 mb-3">
+            <form>
+              <h5>Datos del alumno</h5>
+              <ul class="list-unstyled">
+                <li><span class="fw-semibold">Herminia G. Bento</span></li>
+                <li>Aplicaciones Híbridas</li>
+                <li>Docente: Jonathan Cruz</li>
+                <li>Comisión: DWT4AV</li>
+              </ul>
+            </form>
+          </div>
+        </div>
+        <div class="d-flex flex-column flex-sm-row justify-content-between py-4 my-4 border-top">
+          <p>© 2025 PrePaga Salud. All rights reserved.</p>
+        </div>
+      </footer>
+    </div>
+  </body>
+</html>
