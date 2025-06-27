@@ -135,7 +135,7 @@ function Usuarios(){
                         <div className="d-flex justify-content-between mb-3">
                             <h3 className="h4">Listado de usuarios</h3>
                             <Button variant="success" size="sm" onClick={() => setOpen(!open)} aria-controls="example-fade-text" aria-expanded={open}>
-                                {!open && <>Agregar nueva prepaga</>}
+                                {!open && <>Agregar nuevo usuario</>}
                                 {open && <>Cerrar</>}
                             </Button>
                         </div>
