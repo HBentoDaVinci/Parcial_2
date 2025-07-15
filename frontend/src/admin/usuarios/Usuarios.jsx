@@ -1,18 +1,20 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Table, Modal, Alert, Card, Form, Collapse} from "react-bootstrap";
+import { Container, Row, Col, Button, Table, Modal, Alert, Card, Form, Collapse, FormGroup} from "react-bootstrap";
 import ModalEliminarUsuario from "../../components/ModalEliminarUsuario";
+import userDefault from "../../assets/img/default-avatar.png";
 
 function Usuarios(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const [open, setOpen] = useState(false);
     const [usuarios, setUsuarios] = useState([]);
-    const [usuario, setUsuario] = useState({nombre: "", email: "", password:""});
+    const [usuario, setUsuario] = useState({nombre: "", email: "", password:"", avatar: ""});
     const [showAlertUsuario, setShowAlertUsuario] = useState(false);
     const [validated, setValidated] = useState(false);
 
     // Modal eliminar
     const [showEliminar, setShowEliminar] = useState(false);
-    const [usuarioActivo, setUsuarioActivo] = useState({_id: "", nombre: "", email:""});
+    const [usuarioActivo, setUsuarioActivo] = useState({_id: "", nombre: "", email:"", avatar: ""});
     const [showAlert, setShowAlert] = useState(false);
 
     const handleCloseModal = () => {
@@ -25,14 +27,23 @@ function Usuarios(){
     }
 
     function handlerChange(e){
-        const valor = e.target.value;
-        const key = e.target.name;
-        setUsuario({...usuario, [key]: valor})
+        const { name, value, files } = e.target;
+        if (name === "avatar") {
+            setUsuario({ ...usuario, avatar: files[0] });
+        } else {
+            setUsuario({ ...usuario, [name]: value });
+        }
     }
 
     async function getUsuarios(){
         try {
-            const response = await fetch(`${host}/usuarios`);
+            const response = await fetch(`${host}/usuarios`, {
+                method: "GET",
+                headers: {
+                    "Content-Type":"application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (!response.ok) {
                 alert("Error al solicitar los usuarios");
                 return
@@ -63,13 +74,22 @@ function Usuarios(){
 
     async function addUsuario(){
         console.log('nuevo usuario', usuario)
+        const formData = new FormData();
+        formData.append("nombre", usuario.nombre);
+        formData.append("email", usuario.email);
+        formData.append("password", usuario.password);
+        if (usuario.avatar) {
+            formData.append("avatar", usuario.avatar);
+        }
         const opciones = {
             method: "POST",
             headers: {
-                "Content-Type":"application/json",
+                //"Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(usuario)
-        }
+            //body: JSON.stringify(usuario)
+            body: formData
+        };
         try {
             const response = await fetch(`${host}/usuarios`, opciones);
             if (!response.ok) {
@@ -83,7 +103,7 @@ function Usuarios(){
                 setShowAlertUsuario(false);
             }, 1000);
             setUsuarios([...usuarios, data]);
-            setUsuario({nombre: "", email: "", password:""})
+            setUsuario({nombre: "", email: "", password:"", avatar: ""})
             setValidated(false);
         } catch(error){
             console.error(error);
@@ -93,9 +113,11 @@ function Usuarios(){
     
     async function deleteUsuario(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-        
         try {
             const response = await fetch(`${host}/usuarios/${id}`, opciones);
             if (!response.ok) {
@@ -117,7 +139,7 @@ function Usuarios(){
     }
 
     function resetoForm() {
-        setUsuario({nombre: "", email: "", password:""})
+        setUsuario({nombre: "", email: "", password:"", avatar: ""})
         setShowAlertUsuario(false);
         setValidated(false);
     }
@@ -150,7 +172,7 @@ function Usuarios(){
                                         </div>
                                     </Card.Header>
                                     <Card.Body>
-                                        <Form onSubmit={handlerForm} noValidate validated={validated}>
+                                        <Form onSubmit={handlerForm} noValidate validated={validated} encType="multipart/form-data">
                                             <Row>
                                                 <Form.Group as={Col} controlId="nombre" className='mb-3'>
                                                     <Form.Label>Nombre</Form.Label>
@@ -189,6 +211,12 @@ function Usuarios(){
                                                     <Form.Control.Feedback type="invalid">Debe ingresar una password.</Form.Control.Feedback>
                                                 </Form.Group>
                                             </Row>
+                                            <Row>
+                                                <Form.Group controlId="avatar" className="mb-3">
+                                                    <Form.Label>Avatar</Form.Label>
+                                                    <Form.Control type="file" name="avatar" accept="image/*" onChange={handlerChange} />
+                                                </Form.Group>
+                                            </Row>
                                             {showAlertUsuario && 
                                                 <Alert variant="success" className="p-2">Usuario agregado correctamente.</Alert>
                                             }
@@ -205,6 +233,7 @@ function Usuarios(){
                         <Table striped bordered hover>
                             <thead>
                                 <tr>
+                                    <th>Avatar</th>
                                     <th>#</th>
                                     <th>Nombre</th>
                                     <th>Email</th>
@@ -214,6 +243,14 @@ function Usuarios(){
                             <tbody>
                                 {usuarios.map((us, i)=>(
                                     <tr key={i}>
+                                        <td>
+                                            {us.avatar &&
+                                                <img alt={us.name} src={`${host.replace('/api', '')}/${us.avatar}`} width="40" height="40" className="d-inline-block align-middle me-2 rounded-circle"/>
+                                            }
+                                            {!us.avatar &&
+                                                <img alt={us.name} src={userDefault} width="40" height="40" className="d-inline-block align-middle me-2 rounded-circle"/>
+                                            }
+                                        </td>
                                         <td>{us._id}</td>
                                         <td>{us.nombre}</td>
                                         <td><a href={`mailto: ${us.email}`} target="_blank">{us.email}</a></td>

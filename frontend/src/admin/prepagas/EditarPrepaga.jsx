@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ModalEliminarPrepaga from "../../components/ModalEliminarPrepaga";
 
 function EditarPrepaga(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const [prepaga, setPrepaga] = useState({_id: "", nombre: "", rnemp: ""});
     const {id} = useParams();
@@ -32,7 +33,13 @@ function EditarPrepaga(){
 
     async function getPrepaga(){
         try {
-            const response = await fetch(`${host}/prepagas/${id}`);
+            const response = await fetch(`${host}/prepagas/${id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}` // 2. Incluir el token en el header
+                }
+            });
             if (!response.ok) {
                 alert("Error al solicitar la prepaga solicitada");
                 return
@@ -66,6 +73,7 @@ function EditarPrepaga(){
             method: "PUT",
             headers: {
                 "Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(prepaga)
         }
@@ -91,7 +99,10 @@ function EditarPrepaga(){
 
     async function deletePrepaga(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
         
         try {

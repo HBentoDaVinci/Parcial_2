@@ -3,9 +3,11 @@ import { Container, Row, Col, Button, Card, Form, Table, Alert, Collapse} from "
 import ModalEliminarPlan from "../../components/ModalEliminarPlan";
 
 function PlanesAdmin(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const [open, setOpen] = useState(false);
     const [planes, setPlanes] = useState([]);
+    const [prepagas, setPrepagas] = useState([]);
     const [plan, setPlan] = useState({
         nombre: "", 
         rangoEtario: {
@@ -65,8 +67,24 @@ function PlanesAdmin(){
         }
     }
 
+    async function getPrepagas(){
+        try {
+            const response = await fetch(`${host}/prepagas`);
+            if (!response.ok) {
+                alert("Error al solicitar las prepagas");
+                return
+            }
+            const {data} = await response.json();
+            setPrepagas(data);
+        } catch(error){
+            console.error(error);
+            alert("Ocurrio un problema en el servidor")
+        }
+    }
+
     useEffect(() => {
-        getPlanes()
+        getPlanes();
+        getPrepagas();
     }, [])
 
     function handlerForm(e){
@@ -111,13 +129,12 @@ function PlanesAdmin(){
         addPlan();
     }
 
-
     async function addPlan(){
-        console.log('plan nuevo', plan)
         const opciones = {
             method: "POST",
             headers: {
                 "Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(plan)
         }
@@ -127,12 +144,12 @@ function PlanesAdmin(){
                 alert("Error al guardar el plan");
                 return
             }
-            const {data} = await response.json();
-            setShowAlertPlan(true)
+            await getPlanes();
+            setShowAlertPlan(true);
+
             setTimeout(() => {
                 setShowAlertPlan(false);
             }, 1000);
-            setPlanes([...planes, data])
             setPlan({
                 nombre: "", 
                 rangoEtario: {
@@ -152,7 +169,10 @@ function PlanesAdmin(){
 
     async function deletePlan(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         }
         try {
             const response = await fetch(`${host}/planes/${id}`, opciones);
@@ -255,15 +275,14 @@ function PlanesAdmin(){
                                                 </Form.Group>
                                                 <Form.Group as={Col} controlId="prepaga" className='mb-4'>
                                                     <Form.Label>Prepaga</Form.Label>
-                                                    <Form.Control 
-                                                        type="text" 
-                                                        placeholder="Prepaga"
-                                                        name="prepaga" 
-                                                        value={plan.prepaga} 
-                                                        onChange={handlerChange} 
-                                                        maxLength={100}
-                                                        isInvalid={!!errores.prepaga}
-                                                    />
+                                                    <Form.Select name="prepaga" value={plan.prepaga} onChange={handlerChange} isInvalid={!!errores.prepaga}>
+                                                        <option value="">Seleccionar prepaga</option>
+                                                        {prepagas.map((prepaga) => (
+                                                            <option key={prepaga._id} value={prepaga._id}>
+                                                                {prepaga.nombre}
+                                                            </option>
+                                                        ))}
+                                                    </Form.Select>
                                                     <Form.Control.Feedback type="invalid">{errores.prepaga}</Form.Control.Feedback>
                                                 </Form.Group>
                                             </Row>

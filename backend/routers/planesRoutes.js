@@ -7,8 +7,8 @@ const router = express.Router();
 // Definimos las rutas
 router.get('/', getPlanes);
 router.get('/:id', getPlanById);
-router.post('/', addPlan);
-router.put('/:id', updatePlanById);
-router.delete('/:id', deletePlanById);
+router.post('/', validacionToken, addPlan);
+router.put('/:id', validacionToken, updatePlanById);
+router.delete('/:id', validacionToken, deletePlanById);
 
 export default router;

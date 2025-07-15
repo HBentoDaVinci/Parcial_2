@@ -6,6 +6,7 @@ import ModalEliminarPlan from "../../components/ModalEliminarPlan";
 import CardPlan from "../../components/CardPlan";
 
 function VerPlan(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const {id} = useParams();
     const [plan, setPlan] = useState({
@@ -43,7 +44,6 @@ function VerPlan(){
                 return
             }
             const {data} = await response.json();
-            console.log('data', data)
             setPlan(data);
         } catch(error){
             console.error(error);
@@ -57,7 +57,10 @@ function VerPlan(){
 
     async function deletePlan(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         }
         try {
             const response = await fetch(`${host}/planes/${id}`, opciones);

@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Container, Row, Col, Button, Card, Form, Table, Collapse } from "react-bootstrap";
+import { Container, Row, Col, Button, Card, Form, Table, Collapse, Alert } from "react-bootstrap";
 import ModalEliminarPrepaga from "../../components/ModalEliminarPrepaga";
 
 
 function Prepagas(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const [open, setOpen] = useState(false);
     const [prepagas, setPrepagas] = useState([]);
@@ -67,6 +68,7 @@ function Prepagas(){
             method: "POST",
             headers: {
                 "Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(prepaga)
         }
@@ -82,7 +84,7 @@ function Prepagas(){
                 setShowAlertPrepaga(false);
             }, 1000);
             setPrepagas([...prepagas, data]);
-            setPrepaga({nombre: "", rnemp:""})
+            setPrepaga({nombre: "", rnemp:""});
         } catch(error){
             console.error(error);
             alert("Ocurrio un problema en el servidor")
@@ -91,7 +93,10 @@ function Prepagas(){
 
     async function deletePrepaga(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
         
         try {
@@ -114,7 +119,7 @@ function Prepagas(){
         }
     }
 
-    function resetoForm() {
+    function reseteoForm() {
         setPrepaga({nombre: "", rnemp: ""})
         setShowAlertPrepaga(false)
         setValidated(false);
@@ -178,7 +183,7 @@ function Prepagas(){
                                                 <Alert variant="success" className="p-2">Prepaga agregada correctamente.</Alert>
                                             }
                                             <Form.Group className="d-flex">
-                                                <Button size="sm" type="button" variant='outline-primary' className='ms-auto me-2' onClick={resetoForm}>BORRAR</Button>
+                                                <Button size="sm" type="button" variant='outline-primary' className='ms-auto me-2' onClick={reseteoForm}>BORRAR</Button>
                                                 <Button size="sm" type="submit" variant='primary'>AGREGAR</Button>
                                             </Form.Group>
                                         </Form>

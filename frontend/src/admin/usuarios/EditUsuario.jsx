@@ -3,10 +3,12 @@ import { useParams } from "react-router-dom";
 import { Container, Row, Col, Button, Card, Form, Table, Alert } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import ModalEliminarUsuario from "../../components/ModalEliminarUsuario";
+import userDefault from "../../assets/img/default-avatar.png";
 
 function EditUsuario(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
-    const [usuario, setUsuario] = useState({ _id: "", nombre: "", email: "", password:""});
+    const [usuario, setUsuario] = useState({ _id: "", nombre: "", email: "", password:"", avatar:""});
     const {id} = useParams();
     const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
@@ -26,12 +28,23 @@ function EditUsuario(){
     }
 
     function handlerChange(e){
-        setUsuario({...usuario, [e.target.name]: e.target.value})
+        const { name, value, files } = e.target;
+        if (name === "avatar") {
+            setUsuario({ ...usuario, avatar: files[0] });
+        } else {
+            setUsuario({ ...usuario, [name]: value });
+        }
     }
 
     async function getUsuario(){
         try {
-            const response = await fetch(`${host}/usuarios/${id}`);
+            const response = await fetch(`${host}/usuarios/${id}`,{
+                method: "GET",
+                headers: {
+                    "Content-Type":"application/json",
+                    Authorization: `Bearer ${token}`
+                }
+            });
             if (!response.ok) {
                 alert("Error al solicitar el usuario solicitado");
                 return
@@ -48,14 +61,40 @@ function EditUsuario(){
         getUsuario()
     }, [])
 
+    // Previsualización del avatar (desde File o desde URL)
+    const baseURL = host.replace('/api', '');
+    const avatarPreview = usuario.avatar instanceof File
+        ? URL.createObjectURL(usuario.avatar)
+        : usuario.avatar
+            ? `${baseURL}/${usuario.avatar}`
+            : userDefault;
+
+    useEffect(() => {
+        return () => {
+            if (usuario.avatar instanceof File) {
+                URL.revokeObjectURL(usuario.avatar);
+            }
+        };
+    }, [usuario.avatar]);
+
     async function editUsuario(event){
         event.preventDefault();
+        const formData = new FormData();
+        formData.append("nombre", usuario.nombre);
+        formData.append("email", usuario.email);
+        formData.append("password", usuario.password);
+
+        if (usuario.avatar instanceof File) {
+            formData.append("avatar", usuario.avatar); // solo si cambió el archivo
+        }
         const opciones = {
             method: "PUT",
             headers: {
-                "Content-Type":"application/json",
+                //"Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
-            body: JSON.stringify(usuario)
+            //body: JSON.stringify(usuario)
+            body: formData
         }
         try {
             const response = await fetch(`${host}/usuarios/${id}`, opciones);
@@ -79,9 +118,11 @@ function EditUsuario(){
     
     async function deleteUsuario(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
         }
-        
         try {
             const response = await fetch(`${host}/usuarios/${id}`, opciones);
             if (!response.ok) {
@@ -113,7 +154,7 @@ function EditUsuario(){
                         </div>
                         <Card>
                             <Card.Body>
-                                <Form onSubmit={editUsuario}>
+                                <Form onSubmit={editUsuario} encType="multipart/form-data" >
                                     <Row>
                                         <Form.Group as={Col} controlId="nombre" className='mb-3'>
                                             <Form.Label>Nombre</Form.Label>
@@ -144,6 +185,22 @@ function EditUsuario(){
                                                 value={usuario.password} 
                                                 onChange={handlerChange} 
                                             />
+                                        </Form.Group>
+                                    </Row>
+                                    <Row>
+                                        <Form.Group controlId="avatar" className="mb-3">
+                                            <Form.Label>Avatar</Form.Label>
+                                            <div className="mb-2">
+                                                <img
+                                                    src={avatarPreview}
+                                                    alt="Avatar"
+                                                    width="60"
+                                                    height="60"
+                                                    className="rounded-circle"
+                                                    onError={(e) => { e.target.src = userDefault }}
+                                                />
+                                            </div>
+                                            <Form.Control type="file" name="avatar" accept="image/*" onChange={handlerChange} />
                                         </Form.Group>
                                     </Row>
                                     {showConfirm &&

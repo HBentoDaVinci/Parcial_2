@@ -6,9 +6,9 @@ const router = express.Router();
 
 // Definimos las rutas
 router.get('/', getPrepagas);
-router.get('/:id', getPrepagaById);
-router.post('/', addPrepaga);
-router.put('/:id', updatePrepagaById);
-router.delete('/:id', deletePrepagaById);
+router.get('/:id', validacionToken, getPrepagaById);
+router.post('/', validacionToken, addPrepaga);
+router.put('/:id', validacionToken, updatePrepagaById);
+router.delete('/:id', validacionToken, deletePrepagaById);
 
 export default router;

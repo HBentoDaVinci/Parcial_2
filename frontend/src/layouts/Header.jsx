@@ -1,12 +1,20 @@
 import React, {useContext} from "react";
-import { Container, Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
-import { NavLink } from "react-router-dom";
-import logo from "../assets/img/logo.png";
 import { AuthContext } from "../context/AuthContext";
+import { Container, Navbar, Nav, NavDropdown, Button } from 'react-bootstrap';
+import { NavLink, useNavigate } from "react-router-dom";
+import logo from "../assets/img/logo.png";
 
 function Header(){
 
     const {user, logout} = useContext(AuthContext)
+    console.log('user', user)
+
+    const navigate = useNavigate();
+
+    const logoutHandler = () => {
+        logout();
+        navigate('/admin/login')
+    }
 
     return (
         <div className="header">
@@ -30,7 +38,7 @@ function Header(){
                     </Nav>
                     <NavDropdown title="Admin" id="basic-nav-dropdown">
                         <NavLink to="/admin/login" className="dropdown-item">Login</NavLink>
-                        <Button onClick={()=>{logout()}} className="dropdown-item">Logout</Button>
+                        <Button onClick={()=>{logoutHandler()}} className="dropdown-item">Logout</Button>
                         <NavDropdown.Divider />
                         <NavLink to="/admin/planes" className="dropdown-item">Planes</NavLink>
                         <NavLink to="/admin/prepagas" className="dropdown-item">Prepagas</NavLink>

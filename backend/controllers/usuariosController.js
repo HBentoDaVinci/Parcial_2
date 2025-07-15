@@ -38,6 +38,7 @@ const getUsuarioById = async (request, response) => {
             data._id = usuario._id;
             data.nombre = usuario.nombre;
             data.email = usuario.email;
+            data.avatar = usuario.avatar;
             
             response.status(200).json({ msg: 'ok', data});
         } else {
@@ -68,6 +69,7 @@ const getUsuarioByEmail = async (request, response) => {
 const addUsuario = async (request, response) => {
     try {
         const {nombre, email, password} = request.body;
+        const avatarUrl = request.file.path;
 
         // Valida que no tenga el nombre ni el email vacio 
         if (!nombre || !email || !password ){
@@ -86,7 +88,7 @@ const addUsuario = async (request, response) => {
         // Hasheo la pass
         const passwordHash = await bcrypt.hash(password, saltRounds);
 
-        const usuarioNew = new User({nombre, email, password: passwordHash});
+        const usuarioNew = new User({nombre, email, password: passwordHash, avatar: avatarUrl});
         await usuarioNew.save();
 
         const id = usuarioNew._id;
@@ -122,6 +124,7 @@ const updateUsuarioById = async (request, response) => {
     try {
         const { id } = request.params;
         const {nombre, email, password} = request.body;
+        const avatarUrl = request.file.path;
 
         // Valida que no tenga el nombre ni el email ni la password vacia 
         if (!nombre || !email || !password ){
@@ -130,8 +133,8 @@ const updateUsuarioById = async (request, response) => {
 
         // Hasheo la pass
         const passwordHash = await bcrypt.hash(password, saltRounds);
-
-        const usuario = {nombre, email, password: passwordHash};
+        
+        const usuario = {nombre, email, password: passwordHash, avatar: avatarUrl};
         const usuarioUpdate = await User.findByIdAndUpdate(id, usuario);
         if (usuarioUpdate) {
             response.status(200).json({ msg: 'Datos del usuario actualizado', data: usuario});
@@ -170,7 +173,7 @@ const auth = async (request, response) => {
             email: usuario.email
         }
         // Genero el token, la firma digital
-        const token = jsonwebtoken.sign(data, secret_key, {expiresIn: '2h'});
+        const token = jsonwebtoken.sign(data, secret_key, {expiresIn: '120h'});
 
         response.json({msg: 'Autenticación exitosa', token: token});
     } catch (error) {

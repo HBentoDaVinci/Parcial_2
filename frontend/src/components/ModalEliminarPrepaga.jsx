@@ -9,7 +9,9 @@ function ModalEliminarPrepaga({showEliminar, handleCloseModal, prepagaActiva, sh
             </Modal.Header>
 
             <Modal.Body>
-                <p>¿Desea eliminar a <strong>{prepagaActiva?.nombre}</strong>?</p>
+                {!showAlert &&
+                    <p>¿Desea eliminar a <strong>{prepagaActiva?.nombre}</strong>?</p>
+                }
                 {showAlert && 
                     <Alert variant="success">La prepaga fue eliminada correctamente.</Alert>
                 }

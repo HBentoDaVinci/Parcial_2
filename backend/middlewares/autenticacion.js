@@ -9,12 +9,12 @@ const validacionToken = ((request, response, next) => {
     const jwt = request.headers.authorization;
 
     if (!jwt) {
-        response.status(401).json({msg: "Falta el token"});
+        return response.status(401).json({msg: "Falta el token"});
     }
 
     const token = jwt.split(' ')[1];
 
-    console.log({token})
+    //console.log({token})
 
     // verificar
     jsonwebtoken.verify(token, secretKey, (error, decoded) => {
@@ -22,10 +22,11 @@ const validacionToken = ((request, response, next) => {
             response.status(403).json({msg: 'Token inválido'})
         }
 
-        request.body.userId = decoded.id;
+        request.userId = decoded.id;
 
+        next()
     })
 
-    next()
+    
 })
 export { validacionToken }

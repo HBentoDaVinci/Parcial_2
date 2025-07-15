@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ModalEliminarPlan from "../../components/ModalEliminarPlan";
 
 function EditarPlan(){
+    const token = localStorage.getItem("token");
     const host = import.meta.env.VITE_API_URL;
     const {id} = useParams();
     const [plan, setPlan] = useState({
@@ -18,6 +19,7 @@ function EditarPlan(){
         prepaga:"",
         tarifa: 0
     });
+    const [prepagas, setPrepagas] = useState([]);
     const [showConfirm, setShowConfirm] = useState(false);
     const navigate = useNavigate();
 
@@ -25,6 +27,7 @@ function EditarPlan(){
     const [showEliminar, setShowEliminar] = useState(false);
     const [planActivo, setPlanActivo] = useState({_id: "", nombre: ""});
     const [showAlert, setShowAlert] = useState(false);
+    const [errores, setErrores] = useState({});
 
     const handleCloseModal = () => {
         setShowEliminar(false);
@@ -57,7 +60,22 @@ function EditarPlan(){
                 return
             }
             const {data} = await response.json();
-            setPlan(data);
+            setPlan({ ...data, prepaga: data.prepaga?._id || "" });
+        } catch(error){
+            console.error(error);
+            alert("Ocurrio un problema en el servidor")
+        }
+    }
+
+    async function getPrepagas(){
+        try {
+            const response = await fetch(`${host}/prepagas`);
+            if (!response.ok) {
+                alert("Error al solicitar las prepagas");
+                return
+            }
+            const {data} = await response.json();
+            setPrepagas(data);
         } catch(error){
             console.error(error);
             alert("Ocurrio un problema en el servidor")
@@ -65,17 +83,59 @@ function EditarPlan(){
     }
 
     useEffect(() => {
-        getPlanById()
+        getPlanById();
+        getPrepagas();
     }, [])
 
+    function handlerForm(e){
+        e.preventDefault();
 
-    async function editPlan(event){
-        event.preventDefault();
-        console.log('plan nuevo', plan)
+        const nuevosErrores = {};
+
+        if (!plan.nombre.trim()) {
+            nuevosErrores.nombre = "Debe ingresar un nombre";
+        }
+
+        if (!plan.rangoEtario.min || isNaN(plan.rangoEtario.min)) {
+            nuevosErrores.rangoEtarioMin = "Debe asignar una edad mínima";
+        }
+
+        if (!plan.rangoEtario.max || isNaN(plan.rangoEtario.max)) {
+            nuevosErrores.rangoEtarioMax = "Debe asignar una edad máxima";
+        }
+
+        if (!plan.cobertura.trim()) {
+            nuevosErrores.cobertura = "Debe ingresar los detalles de la cobertura";
+        }
+
+        if (!Array.isArray(plan.grupoFamiliar) || plan.grupoFamiliar.length === 0) {
+            nuevosErrores.grupoFamiliar = "Debe seleccionar al menos un item para el grupo familiar";
+        }
+
+        if (!plan.prepaga.trim()) {
+            nuevosErrores.prepaga = "Debe ingresar el id de la prepaga";
+        }
+
+        if (!plan.tarifa || isNaN(plan.tarifa)) {
+            nuevosErrores.tarifa = "Debe ingresar una tarifa válida";
+        }
+
+        if (Object.keys(nuevosErrores).length > 0) {
+            setErrores(nuevosErrores);
+            return;
+        }
+
+        setErrores({});
+        editPlan();
+    }
+
+    async function editPlan(){
+        console.log('plan modificado', plan)
         const opciones = {
             method: "PUT",
             headers: {
                 "Content-Type":"application/json",
+                Authorization: `Bearer ${token}`
             },
             body: JSON.stringify(plan)
         }
@@ -101,7 +161,10 @@ function EditarPlan(){
 
     async function deletePlan(id){
         const opciones = {
-            method: "DELETE"
+            method: "DELETE",
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
         }
         try {
             const response = await fetch(`${host}/planes/${id}`, opciones);
@@ -134,7 +197,7 @@ function EditarPlan(){
                         </div>
                         <Card>
                             <Card.Body>
-                                <Form onSubmit={editPlan}>
+                                <Form onSubmit={handlerForm}>
                                     <Row>
                                         <Form.Group as={Col} controlId="nombre" className='mb-4'>
                                             <Form.Label>Denominación del plan</Form.Label>
@@ -144,7 +207,9 @@ function EditarPlan(){
                                                 name="nombre" 
                                                 value={plan.nombre} 
                                                 onChange={handlerChange} 
+                                                isInvalid={!!errores.nombre}
                                             />
+                                            <Form.Control.Feedback type="invalid">{errores.nombre}</Form.Control.Feedback>
                                         </Form.Group>
                                         <Form.Group as={Col} lg={2} controlId="edadMin" className='mb-4'>
                                             <Form.Label>Edad mínima</Form.Label>
@@ -154,7 +219,9 @@ function EditarPlan(){
                                                 name="rangoEtario"
                                                 value={plan.rangoEtario.min} 
                                                 onChange={(e)=>setPlan({...plan, rangoEtario:{...plan.rangoEtario, min: Number(e.target.value)}})} 
+                                                isInvalid={!!errores.rangoEtarioMin}
                                             />
+                                            <Form.Control.Feedback type="invalid">{errores.rangoEtarioMin}</Form.Control.Feedback>
                                         </Form.Group>
                                         <Form.Group as={Col} lg={2} controlId="edadMax" className='mb-4'>
                                             <Form.Label>Edad máxima</Form.Label>
@@ -164,18 +231,21 @@ function EditarPlan(){
                                                 name="rangoEtario"
                                                 value={plan.rangoEtario.max} 
                                                 onChange={(e)=>setPlan({...plan, rangoEtario:{...plan.rangoEtario, max: Number(e.target.value)}})} 
+                                                isInvalid={!!errores.rangoEtarioMax}
                                             />
+                                            <Form.Control.Feedback type="invalid">{errores.rangoEtarioMax}</Form.Control.Feedback>
                                         </Form.Group>
                                         <Form.Group as={Col} controlId="prepaga" className='mb-4'>
                                             <Form.Label>Prepaga</Form.Label>
-                                            <Form.Control 
-                                                type="text" 
-                                                placeholder="Prepaga"
-                                                name="prepaga" 
-                                                value={plan.prepaga?._id} 
-                                                onChange={handlerChange} 
-                                                maxLength={100}
-                                            />
+                                            <Form.Select name="prepaga" value={plan.prepaga} onChange={handlerChange} isInvalid={!!errores.prepaga}>
+                                                <option value="">Seleccionar prepaga</option>
+                                                {prepagas.map((prepaga) => (
+                                                    <option key={prepaga._id} value={prepaga._id}>
+                                                        {prepaga.nombre}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                            <Form.Control.Feedback type="invalid">{errores.prepaga}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Row>
                                     <Row>
@@ -213,6 +283,9 @@ function EditarPlan(){
                                                 onChange={handleCheckboxChange}
                                             />
                                         </div>
+                                        {errores.grupoFamiliar && (
+                                            <div className="text-danger small mt-1">{errores.grupoFamiliar}</div>
+                                        )}
                                     </Form.Group>
                                     <Form.Group as={Col} controlId="tarifa" className='mb-4'>
                                         <Form.Label>Tarifa</Form.Label>
@@ -222,7 +295,9 @@ function EditarPlan(){
                                             name="tarifa"
                                             value={plan.tarifa} 
                                             onChange={handlerChange} 
+                                            isInvalid={!!errores.tarifa}
                                         />
+                                        <Form.Control.Feedback type="invalid">{errores.tarifa}</Form.Control.Feedback>
                                     </Form.Group>
                                     </Row>
                                     <Row>
@@ -232,7 +307,9 @@ function EditarPlan(){
                                             value={plan.cobertura}
                                             name="cobertura"
                                             onChange={handlerChange}
+                                            isInvalid={!!errores.cobertura}
                                             />
+                                            <Form.Control.Feedback type="invalid">{errores.cobertura}</Form.Control.Feedback>
                                         </Form.Group>
                                     </Row>
                                     {showConfirm && 
